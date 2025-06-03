@@ -7,6 +7,7 @@ import numpy as np
 from collections import deque 
 import random
 import matplotlib.pyplot as plt
+import wandb
 
 class QNet(nn.Module):
     def __init__(self, num_layers, input_dim, hidden_dim, output_dim):
@@ -199,6 +200,12 @@ cfg = Config(
 agent = DDQN(cfg)
 
 if train:
+    # 初始化wandb
+    wandb.init(
+        project="easyrl",
+        config=vars(cfg)
+    )
+
     rewards = [] # 记录总的rewards
     moving_average_rewards = [] # 记录总的经滑动平均处理后的rewards
     ep_steps = []
@@ -228,34 +235,15 @@ if train:
         else:
             moving_average_rewards.append(
                 0.9*moving_average_rewards[-1]+0.1*ep_reward)
-
-    print("--- The visualization of the training rewards and the moving average version ---")
-    # Plot 1: Rewards per episode
-    plt.figure(figsize=(10, 6)) # Create the first figure
-    plt.plot(
-        rewards,
-        label="Rewards"
-    )
-    plt.xlabel("Episodes")
-    plt.ylabel("Reward")
-    plt.title("Rewards per Episode")
-    plt.legend() 
-    plt.grid(True) 
-    plt.savefig("rewards_per_episode.png")
-
-    # Plot 2: Moving Average Rewards
-    plt.figure(figsize=(10, 6)) # Create the second figure
-    plt.plot(
-        moving_average_rewards,
-        label="Moving average rewards",
-        color='green'
-    )
-    plt.xlabel("Episodes")
-    plt.ylabel("Moving Average Reward")
-    plt.title("Moving Average of Rewards")
-    plt.legend() 
-    plt.grid(True) 
-    plt.savefig("moving_average_rewards.png")
+        
+        wandb.log({
+            "Episode Reward": ep_reward,
+            "Moving Average Reward": moving_average_rewards,
+            "Episode Steps": i_step,
+            "Epsilon": agent.config.epsilon,
+            "Episode": i_episode,
+            "Total Training Steps": agent.step
+        })
 
     # Save the model to the disk
     agent.save_model()
