@@ -1,0 +1,292 @@
+# This file implements the Pendulum-v0 RL project.
+# This file will implement the following algorithms: 
+# (1) DDPG 
+# (2) TD3 
+# (3) PPO
+# (4) GRPO
+
+import torch
+import torch.nn as nn
+import math
+import torch.nn.functional as F
+from collections import deque
+import random
+import numpy as np
+
+class NoisyLinear(nn.Module):
+    def __init__(self, input_dim, output_dim, sigma_zero=0.5):
+        super(NoisyLinear, self).__init__()
+
+        # Store parameters
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.sigma_zero = sigma_zero
+
+        self.mu_weight = nn.Parameter(torch.Tensor(output_dim, input_dim))
+        self.sigma_weight = nn.Parameter(torch.Tensor(output_dim, input_dim))
+        self.register_buffer('epsilon_weight', torch.Tensor(output_dim, input_dim))
+
+        self.mu_bias = nn.Parameter(torch.Tensor(output_dim))
+        self.sigma_bias = nn.Parameter(torch.Tensor(output_dim))
+        self.register_buffer('epsilon_bias', torch.Tensor(output_dim))
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        mu_std = 1.0 / math.sqrt(self.input_dim)
+        self.mu_weight.data.normal_(0, mu_std)
+        self.mu_bias.data.normal_(0, mu_std)
+
+        initial_sigma_value = self.sigma_zero / math.sqrt(self.input_dim)
+        self.sigma_weight.data.fill_(initial_sigma_value)
+        self.sigma_bias.data.fill_(initial_sigma_value)
+        
+        self.sample_noise()
+
+    def _scale_noise(self, size):
+        x = torch.randn(size, device=self.mu_weight.device)
+        return x.sign().mul(x.abs().sqrt())
+
+    def sample_noise(self):
+        epsilon_in = self._scale_noise(self.input_dim)
+        epsilon_out = self._scale_noise(self.output_dim)
+
+        self.epsilon_weight.copy_(epsilon_out.ger(epsilon_in))
+        self.epsilon_bias.copy_(epsilon_out)
+
+    def forward(self, x):
+        weight = self.mu_weight + self.sigma_weight * self.epsilon_weight
+        bias = self.mu_bias + self.sigma_bias * self.epsilon_bias
+        return F.linear(x, weight, bias)
+
+
+class QNet(nn.Module):
+    def __init__(self, num_layers, input_dim, hidden_dim, output_dim, use_noisy=False):
+        super().__init__()
+
+        # Store parameters
+        self.num_layers = num_layers
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.use_noisy = use_noisy
+
+        LayerType = lambda in_dim, out_dim: NoisyLinear(in_dim, out_dim, sigma_zero=0.5) if use_noisy else nn.Linear
+
+        # Used layers
+        self.input_layer = LayerType(input_dim, hidden_dim)
+        self.hidden_layer = LayerType(hidden_dim, hidden_dim)
+        self.output_layer = LayerType(hidden_dim, output_dim)
+
+        # Used non-linear function
+        self.gelu = nn.GELU()
+
+    def forward(self, x):
+        # The input layer
+        x = self.input_layer(x)
+        x = self.gelu(x)
+
+        # The hidden layers
+        for _ in range(self.num_layers - 1):
+            x = self.hidden_layer(x)
+            x = self.gelu(x)
+        
+        # The final layer
+        x = self.output_layer(x)
+
+        return x
+    
+    def sample_noise(self):
+        if self.use_noisy:
+            self.input_layer.sample_noise()
+            self.hidden_layer.sample_noise()
+            self.output_layer.sample_noise()
+
+class PiNet(nn.Module):
+    def __init__(self, num_layers, input_dim, hidden_dim, output_dim):
+        super().__init__()
+
+        # Save the parameters
+        self.num_layers = num_layers
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+
+        # Used layers
+        self.input_layer = nn.Linear(input_dim, hidden_dim)
+        self.hidden_layer = nn.Linear(hidden_dim, hidden_dim)
+        self.output_layer = nn.Linear(hidden_dim, output_dim)
+
+        # Non-linear function
+        self.gelu = nn.GELU()
+    
+    def forward(self, x):
+        # Input layer
+        x = self.input_layer(x)
+        x = self.gelu(x)
+
+        # Hidden layers
+        for _ in range(self.num_layers - 1):
+            x = self.hidden_layer(x)
+            x = self.gelu(x)
+        
+        # Output layer
+        x = self.output_layer(x) # The final logits
+
+        return x
+
+class DDPG:
+    """This class uses the Pathwise Derivative Policy Gradient method as the backbone algorithm."""
+
+    def __init__(self, config):
+        self.config = config
+
+        self.target_q_net = QNet(
+            num_layers=3,
+            input_dim=config.n_states+1, # config.n_states for state, one for action
+            hidden_dim=20,
+            output_dim=1, # Output the Q(s, a)
+            use_noisy=True
+        )
+        self.target_q_net.eval() # The parameters will not be updated during training
+
+        self.q_net = QNet(
+            num_layers=3,
+            input_dim=config.n_states+1,
+            hidden_dim=20,
+            output_dim=1,
+            use_noisy=True
+        )
+        self.target_q_net.load_state_dict(self.q_net.state_dict()) # Q_hat = Q
+
+        self.target_actor_net = PiNet(
+            num_layers=3,
+            input_dim=config.n_states,
+            hidden_dim=20,
+            output_dim=1,
+        )
+        self.target_actor_net.eval()
+
+        self.actor_net = PiNet(
+            num_layers=3,
+            input_dim=config.n_states,
+            hidden_dim=20,
+            output_dim=1,
+        )
+        self.target_actor_net.load_state_dict(self.actor_net.state_dict())
+
+        # Optimizer
+        self.q_optimizer = torch.optim.AdamW(self.q_net.parameters(), lr=config.q_lr)
+        self.actor_optimizer = torch.optim.AdamW(self.actor_net.parameters(), lr=config.actor_lr)
+
+        # Loss function
+        self.loss_fn = nn.MSELoss()
+
+        # Memory buffer
+        self.memory = deque(maxlen=config.memory_capacity)
+
+        # Non-linear function
+        self.tanh = nn.Tanh() # Used for the final logits to restrain output within [-2, 2]
+
+        self.train = True
+    
+    def select_action(self, state):
+        """Use self.actor_net to output an action given a state."""
+        with torch.no_grad():
+            # Convert state to a Pytorch tensor
+            state_tensor = torch.FloatTensor(state).unsqueeze(0)
+            logits = self.actor_net(state_tensor)
+            output = 2 * self.tanh(logits)
+
+        return output.squeeze().cpu().item()
+    
+    def update(self):
+        # Sample a batch from the memory
+        if len(self.memory) < self.config.sample_batch_size:
+            return
+        
+        transitions = random.sample(self.memory, self.config.sample_batch_size)
+
+        batch_state, batch_action, batch_reward, batch_next_state, batch_done = zip(*transitions)
+
+        device = self.q_net.input_layer.mu_weight.device
+
+        # Convert to Pytorch tensors
+        batch_state = torch.FloatTensor(np.array(batch_state)).to(device)
+        batch_action = torch.FloatTensor(list(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+        batch_reward = torch.FloatTensor(list(batch_reward)).unsqueeze(1).to(device)
+        batch_next_state = torch.FloatTensor(np.array(batch_next_state)).to(device)
+        batch_done = torch.FloatTensor(list(batch_done)).unsqueeze(1).to(device)
+
+        # Calculate current Q values
+        q_input = torch.cat((batch_state, batch_action), dim=1)
+        current_q_values = self.q_net(q_input)
+
+        # Target Q values: y = r_i + Q_target(s_{i+1}, actor_target(s_{i+1}))
+        with torch.no_grad():
+            target_actions = 2 * self.tanh(self.target_actor_net(batch_next_state)) # pi_hat(s_{i+1})
+            target_q_input = torch.cat((batch_next_state, target_actions), dim=1)
+            target_q_values = batch_reward + (1 - batch_done) * self.config.gamma * self.target_q_net(target_q_input)
+        
+        # Compute loss
+        q_loss = self.loss_fn(current_q_values, target_q_values)
+
+        actor_actions = 2 * self.tanh(self.actor_net(batch_state))
+        actor_q_input = torch.cat((batch_state, actor_actions), dim=1)
+        actor_loss = -self.q_net(actor_q_input).mean()
+
+        # Backpropagation
+        self.q_optimizer.zero_grad()
+        q_loss.backward()
+        self.q_optimizer.step()
+
+        self.actor_optimizer.zero_grad()
+        actor_loss.backward()
+        self.actor_optimizer.step()
+    
+    def save_model(self, q_path="ddpg_pendulum_q.pth", actor_path="ddpg_pendulum_actor.pth"):
+        """Saves all networks' state_dicts."""
+        torch.save(self.q_net.state_dict(), q_path)
+        torch.save(self.actor_net.state_dict(), actor_path)
+        print(f"Q-net saved to {q_path}, actor-net saved to {actor_path}")
+
+    def load_model(self, q_path="ddpg_pendulum_q.pth", actor_path="ddpg_pendulum_actor.pth"):
+        """Loads all networks' state_dicts."""
+        self.q_net.load_state_dict(torch.load(q_path))
+        self.target_q_net.load_state_dict(self.q_net.state_dict()) 
+        self.actor_net.load_state_dict(torch.load(actor_path))
+        self.target_actor_net.load_state_dict(self.actor_net.state_dict())
+        print(f"Q-net loaded from {q_path}, actor-net loaded from {actor_path}")
+
+    def set_eval_mode(self):
+        """Sets all networks to evaluation mode."""
+        self.q_net.eval()
+        self.target_q_net.eval()
+        self.actor_net.eval()
+        self.target_actor_net.eval()
+        self.train = False
+
+    def set_train_mode(self):
+        """Sets q_net and actor_net to train mode (target_nets stay in eval)."""
+        self.q_net.train()   
+        self.actor_net.train()
+        self.train = True
+
+class Config:
+    def __init__(self, n_states, q_lr, actor_lr, memory_capacity, gamma, target_q_update, target_actor_update, max_episodes, max_steps, epsilon_min, epsilon_decay, sample_batch_size, use_noisy, play, train):
+        self.n_states = n_states
+        self.q_lr = q_lr
+        self.actor_lr = actor_lr
+        self.memory_capacity = memory_capacity
+        self.gamma = gamma
+        self.target_q_update = target_q_update
+        self.target_actor_update = target_actor_update
+        self.max_episodes = max_episodes
+        self.max_steps = max_steps
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
+        self.sample_batch_size = sample_batch_size
+        self.use_noisy = use_noisy
+        self.play = play
+        self.train = train
+

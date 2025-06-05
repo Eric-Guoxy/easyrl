@@ -1,0 +1,23 @@
+2025-06-05 20:50:56,202 INFO    MainThread:690449 [wandb_setup.py:_flush():70] Current SDK version is 0.19.11
+2025-06-05 20:50:56,203 INFO    MainThread:690449 [wandb_setup.py:_flush():70] Configure stats pid to 690449
+2025-06-05 20:50:56,203 INFO    MainThread:690449 [wandb_setup.py:_flush():70] Loading settings from /home/eric_guoxy/.config/wandb/settings
+2025-06-05 20:50:56,203 INFO    MainThread:690449 [wandb_setup.py:_flush():70] Loading settings from /mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/settings
+2025-06-05 20:50:56,204 INFO    MainThread:690449 [wandb_setup.py:_flush():70] Loading settings from environment variables
+2025-06-05 20:50:56,204 INFO    MainThread:690449 [wandb_init.py:setup_run_log_directory():724] Logging user logs to /mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_205056-yxwky1rd/logs/debug.log
+2025-06-05 20:50:56,205 INFO    MainThread:690449 [wandb_init.py:setup_run_log_directory():725] Logging internal logs to /mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_205056-yxwky1rd/logs/debug-internal.log
+2025-06-05 20:50:56,205 INFO    MainThread:690449 [wandb_init.py:init():852] calling init triggers
+2025-06-05 20:50:56,205 INFO    MainThread:690449 [wandb_init.py:init():857] wandb.init called with sweep_config: {}
+config: {'n_states': 3, 'q_lr': 9e-05, 'actor_lr': 9e-05, 'memory_capacity': 10000, 'epsilon': 1.0, 'gamma': 0.99, 'target_q_update': 10, 'target_actor_update': 10, 'max_episodes': 2000, 'max_steps': 1000, 'epsilon_min': 0.01, 'epsilon_decay': 0.995, 'sample_batch_size': 64, 'use_noisy': True, 'play': False, 'train': True, '_wandb': {}}
+2025-06-05 20:50:56,205 INFO    MainThread:690449 [wandb_init.py:init():893] starting backend
+2025-06-05 20:50:56,206 INFO    MainThread:690449 [wandb_init.py:init():897] sending inform_init request
+2025-06-05 20:50:56,211 INFO    MainThread:690449 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-06-05 20:50:56,211 INFO    MainThread:690449 [wandb_init.py:init():907] backend started and connected
+2025-06-05 20:50:56,213 INFO    MainThread:690449 [wandb_init.py:init():1005] updated telemetry
+2025-06-05 20:50:56,294 INFO    MainThread:690449 [wandb_init.py:init():1029] communicating run to backend with 90.0 second timeout
+2025-06-05 20:50:58,308 INFO    MainThread:690449 [wandb_init.py:init():1104] starting run threads in backend
+2025-06-05 20:50:58,489 INFO    MainThread:690449 [wandb_run.py:_console_start():2573] atexit reg
+2025-06-05 20:50:58,490 INFO    MainThread:690449 [wandb_run.py:_redirect():2421] redirect: wrap_raw
+2025-06-05 20:50:58,491 INFO    MainThread:690449 [wandb_run.py:_redirect():2490] Wrapping output streams.
+2025-06-05 20:50:58,492 INFO    MainThread:690449 [wandb_run.py:_redirect():2513] Redirects installed.
+2025-06-05 20:50:58,494 INFO    MainThread:690449 [wandb_init.py:init():1150] run started, returning control to user process
+2025-06-05 20:50:58,535 INFO    MsgRouterThr:690449 [mailbox.py:close():129] [no run ID] Closing mailbox, abandoning 2 handles.

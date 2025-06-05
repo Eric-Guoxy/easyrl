@@ -1,0 +1,7 @@
+{"time":"2025-06-05T21:09:51.398112233+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_210951-0hpewqb8/logs/debug-core.log"}
+{"time":"2025-06-05T21:09:52.176440764+08:00","level":"INFO","msg":"created new stream","id":"0hpewqb8"}
+{"time":"2025-06-05T21:09:52.176737885+08:00","level":"INFO","msg":"stream: started","id":"0hpewqb8"}
+{"time":"2025-06-05T21:09:52.176798476+08:00","level":"INFO","msg":"sender: started","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T21:09:52.176798478+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T21:09:52.176857813+08:00","level":"INFO","msg":"handler: started","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T21:09:52.70235247+08:00","level":"INFO","msg":"Starting system monitor"}

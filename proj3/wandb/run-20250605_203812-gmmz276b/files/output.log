@@ -1,0 +1,24 @@
+/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/envs/classic_control/pendulum.py:137: FutureWarning: The input object of type 'Tensor' is an array-like implementing one of the corresponding protocols (`__array__`, `__array_interface__` or `__array_struct__`); but not a sequence (or 0-D). In the future, this object will be coerced as if it was first converted using `np.array(obj)`. To retain the old behaviour, you have to either modify the type 'Tensor', or assign to an empty array created with `np.empty(correct_shape, dtype=object)`.
+  self.state = np.array([newth, newthdot])
+/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/envs/classic_control/pendulum.py:137: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+  self.state = np.array([newth, newthdot])
+/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/envs/classic_control/pendulum.py:172: FutureWarning: The input object of type 'Tensor' is an array-like implementing one of the corresponding protocols (`__array__`, `__array_interface__` or `__array_struct__`); but not a sequence (or 0-D). In the future, this object will be coerced as if it was first converted using `np.array(obj)`. To retain the old behaviour, you have to either modify the type 'Tensor', or assign to an empty array created with `np.empty(correct_shape, dtype=object)`.
+  return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
+/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/envs/classic_control/pendulum.py:172: DeprecationWarning: setting an array element with a sequence. This was supported in some cases where the elements are arrays with a single element. For example `np.array([1, np.array([2])], dtype=int)`. In the future this will raise the same ValueError as `np.array([1, [2]], dtype=int)`.
+  return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
+/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/utils/passive_env_checker.py:260: UserWarning: [33mWARN: The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: <class 'torch.Tensor'>[0m
+  logger.warn(
+/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py:216: FutureWarning: The input object of type 'Tensor' is an array-like implementing one of the corresponding protocols (`__array__`, `__array_interface__` or `__array_struct__`); but not a sequence (or 0-D). In the future, this object will be coerced as if it was first converted using `np.array(obj)`. To retain the old behaviour, you have to either modify the type 'Tensor', or assign to an empty array created with `np.empty(correct_shape, dtype=object)`.
+  batch_action = torch.FloatTensor(np.array(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py:216: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+  batch_action = torch.FloatTensor(np.array(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 92, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 32, in train
+    self.agent.update() # 每步更新网络
+    ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py", line 216, in update
+    batch_action = torch.FloatTensor(np.array(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't convert np.ndarray of type numpy.object_. The only supported types are: float64, float32, float16, complex64, complex128, int64, int32, int16, int8, uint64, uint32, uint16, uint8, and bool.

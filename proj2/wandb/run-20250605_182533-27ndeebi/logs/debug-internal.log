@@ -1,0 +1,15 @@
+{"time":"2025-06-05T18:25:33.159469281+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj2/wandb/run-20250605_182533-27ndeebi/logs/debug-core.log"}
+{"time":"2025-06-05T18:25:34.08808101+08:00","level":"INFO","msg":"created new stream","id":"27ndeebi"}
+{"time":"2025-06-05T18:25:34.088329936+08:00","level":"INFO","msg":"stream: started","id":"27ndeebi"}
+{"time":"2025-06-05T18:25:34.088465551+08:00","level":"INFO","msg":"handler: started","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:25:34.08954079+08:00","level":"INFO","msg":"sender: started","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:25:34.088343962+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:25:34.484978584+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T18:32:35.897117753+08:00","level":"INFO","msg":"stream: closing","id":"27ndeebi"}
+{"time":"2025-06-05T18:32:35.89722756+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T18:32:35.897543331+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T18:32:37.172790905+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T18:32:37.724542919+08:00","level":"INFO","msg":"handler: closed","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:32:37.7246185+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:32:37.724691584+08:00","level":"INFO","msg":"sender: closed","stream_id":"27ndeebi"}
+{"time":"2025-06-05T18:32:37.725465514+08:00","level":"INFO","msg":"stream: closed","id":"27ndeebi"}

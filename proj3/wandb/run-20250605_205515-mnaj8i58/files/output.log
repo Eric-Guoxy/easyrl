@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 99, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 25, in train
+    self.agent.target_actor_net.sample_noise()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1928, in __getattr__
+    raise AttributeError(
+AttributeError: 'PiNet' object has no attribute 'sample_noise'

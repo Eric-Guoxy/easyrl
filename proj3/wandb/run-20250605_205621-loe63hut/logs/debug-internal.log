@@ -1,0 +1,15 @@
+{"time":"2025-06-05T20:56:21.762485716+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_205621-loe63hut/logs/debug-core.log"}
+{"time":"2025-06-05T20:56:22.508967634+08:00","level":"INFO","msg":"created new stream","id":"loe63hut"}
+{"time":"2025-06-05T20:56:22.509291521+08:00","level":"INFO","msg":"stream: started","id":"loe63hut"}
+{"time":"2025-06-05T20:56:22.509339959+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:22.509387635+08:00","level":"INFO","msg":"handler: started","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:22.50938596+08:00","level":"INFO","msg":"sender: started","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:22.975303088+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T20:56:23.910567736+08:00","level":"INFO","msg":"stream: closing","id":"loe63hut"}
+{"time":"2025-06-05T20:56:23.910623281+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T20:56:23.911201805+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T20:56:25.236867626+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T20:56:25.736729001+08:00","level":"INFO","msg":"handler: closed","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:25.736835716+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:25.736854493+08:00","level":"INFO","msg":"sender: closed","stream_id":"loe63hut"}
+{"time":"2025-06-05T20:56:25.738313246+08:00","level":"INFO","msg":"stream: closed","id":"loe63hut"}

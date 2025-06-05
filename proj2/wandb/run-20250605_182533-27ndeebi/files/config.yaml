@@ -1,0 +1,52 @@
+_wandb:
+    value:
+        cli_version: 0.19.11
+        m: []
+        python_version: 3.11.5
+        t:
+            "1":
+                - 1
+                - 55
+            "2":
+                - 1
+                - 55
+            "3":
+                - 16
+                - 23
+                - 55
+            "4": 3.11.5
+            "5": 0.19.11
+            "8":
+                - 5
+            "12": 0.19.11
+            "13": linux-x86_64
+epsilon:
+    value: 1
+epsilon_decay:
+    value: 0.995
+epsilon_min:
+    value: 0.01
+gamma:
+    value: 0.99
+lr:
+    value: 9e-05
+max_episodes:
+    value: 2000
+max_steps:
+    value: 1000
+memory_capacity:
+    value: 10000
+n_actions:
+    value: 2
+n_states:
+    value: 4
+play:
+    value: false
+sample_batch_size:
+    value: 64
+target_update:
+    value: 10
+train:
+    value: true
+use_noisy:
+    value: true

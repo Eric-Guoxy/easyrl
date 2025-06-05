@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 96, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 37, in train
+    self.agent.update() # 每步更新网络
+    ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py", line 216, in update
+    batch_action = torch.FloatTensor(list(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: len() of unsized object

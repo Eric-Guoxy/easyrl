@@ -1,0 +1,12 @@
+/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py:216: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at /pytorch/torch/csrc/utils/tensor_new.cpp:254.)
+  batch_action = torch.FloatTensor(batch_action).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 97, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 37, in train
+    self.agent.update() # 每步更新网络
+    ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py", line 222, in update
+    q_input = torch.cat((batch_state, batch_action), dim=1)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Tensors must have same number of dimensions: got 2 and 3

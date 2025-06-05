@@ -1,0 +1,26 @@
+0.25786412
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 97, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 33, in train
+    next_state, reward, done, _ = env.step(action) # 更新环境参数
+                                  ^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/wrappers/time_limit.py", line 60, in step
+    self.env.step(action),
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/wrappers/order_enforcing.py", line 37, in step
+    return self.env.step(action)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/wrappers/step_api_compatibility.py", line 52, in step
+    step_returns = self.env.step(action)
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/wrappers/env_checker.py", line 37, in step
+    return env_step_passive_checker(self.env, action)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/utils/passive_env_checker.py", line 222, in env_step_passive_checker
+    result = env.step(action)
+             ^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/gym/envs/classic_control/pendulum.py", line 129, in step
+    u = np.clip(u, -self.max_torque, self.max_torque)[0]
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: invalid index to scalar variable.

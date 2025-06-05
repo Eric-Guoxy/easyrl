@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 91, in <module>
+    trainer.train()
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py", line 26, in train
+    action = self.agent.select_action(state) # 根据当前环境state选择action
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py", line 195, in select_action
+    logits = self.actor_net(state_tensor)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/eric_guoxy/anaconda3/envs/venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/pendulum_v1.py", line 129, in forward
+    for _ in range(len(self.num_layers - 1)):
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'int' has no len()

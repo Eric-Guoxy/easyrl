@@ -1,0 +1,31 @@
+{
+  "os": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "CPython 3.11.5",
+  "startedAt": "2025-06-05T12:50:56.212092Z",
+  "program": "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/train.py",
+  "codePath": "proj3/train.py",
+  "git": {
+    "remote": "git@github.com:Eric-Guoxy/easyrl.git",
+    "commit": "f5c1452719b94dbb5711b42f66527a5ee5d16b81"
+  },
+  "email": "ericguoxy@gmail.com",
+  "root": "/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3",
+  "host": "LAPTOP-Q45HP6NP",
+  "executable": "/home/eric_guoxy/anaconda3/envs/venv/bin/python",
+  "codePathLocal": "train.py",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "1081101176832",
+      "used": "92140838912"
+    }
+  },
+  "memory": {
+    "total": "12438224896"
+  },
+  "cpu": {
+    "count": 4,
+    "countLogical": 8
+  }
+}

@@ -1,16 +1,65 @@
 # This file implements the CartPole-v0 classic rl example.
 # This program will use DDQN as the backbone RL algorithm.
+import math
 import gym
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 from collections import deque 
 import random
 import matplotlib.pyplot as plt
 import wandb
 
+class NoisyLinear(nn.Module):
+    def __init__(self, input_dim, output_dim, sigma_zero=0.5):
+        super(NoisyLinear, self).__init__()
+
+        # Store parameters
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.sigma_zero = sigma_zero
+
+        self.mu_weight = nn.Parameter(torch.Tensor(output_dim, input_dim))
+        self.sigma_weight = nn.Parameter(torch.Tensor(output_dim, input_dim))
+        self.register_buffer('epsilon_weight', torch.Tensor(output_dim, input_dim))
+
+        self.mu_bias = nn.Parameter(torch.Tensor(output_dim))
+        self.sigma_bias = nn.Parameter(torch.Tensor(output_dim))
+        self.register_buffer('epsilon_bias', torch.Tensor(output_dim))
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        mu_std = 1.0 / math.sqrt(self.input_dim)
+        self.mu_weight.data.normal_(0, mu_std)
+        self.mu_bias.data.normal_(0, mu_std)
+
+        initial_sigma_value = self.sigma_zero / math.sqrt(self.input_dim)
+        self.sigma_weight.data.fill_(initial_sigma_value)
+        self.sigma_bias.data.fill_(initial_sigma_value)
+        
+        self.sample_noise()
+
+    def _scale_noise(self, size):
+        x = torch.randn(size, device=self.mu_weight.device)
+        return x.sign().mul(x.abs().sqrt())
+
+    def sample_noise(self):
+        epsilon_in = self._scale_noise(self.input_dim)
+        epsilon_out = self._scale_noise(self.output_dim)
+
+        self.epsilon_weight.copy_(epsilon_out.ger(epsilon_in))
+        self.epsilon_bias.copy_(epsilon_out)
+
+    def forward(self, x):
+        weight = self.mu_weight + self.sigma_weight * self.epsilon_weight
+        bias = self.mu_bias + self.sigma_bias * self.epsilon_bias
+        return F.linear(x, weight, bias)
+
+
 class QNet(nn.Module):
-    def __init__(self, num_layers, input_dim, hidden_dim, output_dim):
+    def __init__(self, num_layers, input_dim, hidden_dim, output_dim, use_noisy=False):
         super().__init__()
 
         # Store parameters
@@ -18,11 +67,14 @@ class QNet(nn.Module):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.use_noisy = use_noisy
+
+        LayerType = lambda in_dim, out_dim: NoisyLinear(in_dim, out_dim, sigma_zero=0.5) if use_noisy else nn.Linear
 
         # Used layers
-        self.input_layer = nn.Linear(input_dim, hidden_dim)
-        self.hidden_layer = nn.Linear(hidden_dim, hidden_dim)
-        self.output_layer = nn.Linear(hidden_dim, output_dim)
+        self.input_layer = LayerType(input_dim, hidden_dim)
+        self.hidden_layer = LayerType(hidden_dim, hidden_dim)
+        self.output_layer = LayerType(hidden_dim, output_dim)
 
         # Used non-linear function
         self.gelu = nn.GELU()
@@ -30,6 +82,7 @@ class QNet(nn.Module):
     def forward(self, x):
         # The input layer
         x = self.input_layer(x)
+        x = self.gelu(x)
 
         # The hidden layers
         for _ in range(self.num_layers - 1):
@@ -40,6 +93,12 @@ class QNet(nn.Module):
         x = self.output_layer(x)
 
         return x
+    
+    def sample_noise(self):
+        if self.use_noisy:
+            self.input_layer.sample_noise()
+            self.hidden_layer.sample_noise()
+            self.output_layer.sample_noise()
 
 
 class DDQN:
@@ -49,7 +108,8 @@ class DDQN:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=4*config.n_states,
-            output_dim=config.n_actions
+            output_dim=config.n_actions,
+            use_noisy=config.use_noisy
         )
         self.target_net.eval()
 
@@ -57,8 +117,10 @@ class DDQN:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=4*config.n_states,
-            output_dim=config.n_actions
+            output_dim=config.n_actions,
+            use_noisy=config.use_noisy
         )
+        self.target_net.load_state_dict(self.policy_net.state_dict()) # The policy net and the target net should be the same at the beginning
 
         # Optimizer
         self.optimizer = torch.optim.AdamW(self.policy_net.parameters(), lr=config.lr)
@@ -78,8 +140,7 @@ class DDQN:
     
     def select_action(self, state):
         """Given a state, output an action."""
-        # Using epsilon-greedy algorithm
-        if random.random() < self.config.epsilon and self.train:
+        if random.random() < self.epsilon and self.train and not self.config.use_noisy:
             return random.randrange(self.config.n_actions)
         else:
             with torch.no_grad():
@@ -99,12 +160,14 @@ class DDQN:
         # Use a batched version
         batch_state, batch_action, batch_reward, batch_next_state, batch_done = zip(*transitions)
 
+        device = self.policy_net.input_layer.mu_weight.device
+
         # Convert to Pytorch tensors
-        batch_state = torch.FloatTensor(np.array(batch_state))
-        batch_action = torch.LongTensor(np.array(batch_action)).unsqueeze(1) # Change shape [2] to [2, 1]
-        batch_reward = torch.FloatTensor(np.array(batch_reward)).unsqueeze(1)
-        batch_next_state = torch.FloatTensor(np.array(batch_next_state))
-        batch_done = torch.FloatTensor(np.array(batch_done)).unsqueeze(1)
+        batch_state = torch.FloatTensor(np.array(batch_state)).to(device)
+        batch_action = torch.LongTensor(np.array(batch_action)).unsqueeze(1).to(device) # Change shape [2] to [2, 1]
+        batch_reward = torch.FloatTensor(np.array(batch_reward)).unsqueeze(1).to(device)
+        batch_next_state = torch.FloatTensor(np.array(batch_next_state)).to(device)
+        batch_done = torch.FloatTensor(np.array(batch_done)).unsqueeze(1).to(device)
 
         # Current Q values
         current_q_values = self.policy_net(batch_state).gather(1, batch_action) # current_q_values: [batch_size, n_actions], gather alone the '1' dimension -> [batch_size, 1]
@@ -130,8 +193,8 @@ class DDQN:
 
         self.step += 1
 
-        if self.config.epsilon > self.config.epsilon_min:
-            self.config.epsilon *= self.config.epsilon_decay
+        if self.config.epsilon > self.config.epsilon_min and not self.config.use_noisy:
+            self.epsilon *= self.config.epsilon_decay
 
     def save_model(self, path="ddqn_cartpole.pth"):
         """Saves the policy network's state_dict."""
@@ -157,7 +220,7 @@ class DDQN:
 
 
 class Config:
-    def __init__(self, n_states, n_actions, lr, memory_capacity, epsilon, gamma, target_update, max_episodes, max_steps, epsilon_min, epsilon_decay, sample_batch_size):
+    def __init__(self, n_states, n_actions, lr, memory_capacity, epsilon, gamma, target_update, max_episodes, max_steps, epsilon_min, epsilon_decay, sample_batch_size, use_noisy, play, train):
         self.n_states = n_states
         self.n_actions = n_actions
         self.lr = lr
@@ -170,36 +233,38 @@ class Config:
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
         self.sample_batch_size = sample_batch_size
+        self.use_noisy = use_noisy
+        self.play = play
+        self.train = train
 
 # 初始化环境
 env = gym.make('CartPole-v0') 
 env.seed(1) # 设置env随机种子
-n_states = env.observation_space.shape[0] # 获取总的状态数
+n_states = env.observation_space.shape[0] # 获取状态的维数
 n_actions = env.action_space.n # 获取总的动作数
-
-train = False
-play = True
 
 # 参数设置
 cfg = Config(
     n_states=n_states,
     n_actions=n_actions,
-    lr = 0.001,
+    lr = 9e-5,
     memory_capacity=10000,
     sample_batch_size=64,
     epsilon=1.0,
     gamma=0.99,
     target_update=10,
-    max_episodes=1000,
+    max_episodes=2000,
     max_steps=1000,
     epsilon_min=0.01,
     epsilon_decay=0.995,
-    
+    use_noisy=True,
+    play=False,
+    train=True
 )
 
 agent = DDQN(cfg)
 
-if train:
+if cfg.train:
     # 初始化wandb
     wandb.init(
         project="easyrl",
@@ -213,6 +278,11 @@ if train:
         state = env.reset() # reset环境状态
         ep_reward = 0
         agent.set_train_mode()
+
+        # Sample noise
+        agent.policy_net.sample_noise()
+        agent.target_net.sample_noise()
+
         for i_step in range(1, cfg.max_steps+1): # cfg.max_steps为每个episode的补偿
             action = agent.select_action(state) # 根据当前环境state选择action
             next_state, reward, done, _ = env.step(action) # 更新环境参数
@@ -226,7 +296,7 @@ if train:
         if i_episode % cfg.target_update == 0: #  cfg.target_update为target_net的更新频率
             agent.target_net.load_state_dict(agent.policy_net.state_dict())
         print('Episode:', i_episode, ' Reward: %i' %
-            int(ep_reward), 'n_steps:', i_step, 'done: ', done,' Explore: %.2f' % cfg.epsilon)
+            int(ep_reward), 'n_steps:', i_step, 'done: ', done,' Explore: %.2f' % agent.epsilon)
         ep_steps.append(i_step)
         rewards.append(ep_reward)
         # 计算滑动窗口的reward
@@ -236,14 +306,23 @@ if train:
             moving_average_rewards.append(
                 0.9*moving_average_rewards[-1]+0.1*ep_reward)
         
-        wandb.log({
-            "Episode Reward": ep_reward,
-            "Moving Average Reward": moving_average_rewards,
-            "Episode Steps": i_step,
-            "Epsilon": agent.config.epsilon,
-            "Episode": i_episode,
-            "Total Training Steps": agent.step
-        })
+        if cfg.use_noisy:
+            wandb.log({
+                "Episode Reward": ep_reward,
+                "Moving Average Reward": moving_average_rewards,
+                "Episode Steps": i_step,
+                "Episode": i_episode,
+                "Total Training Steps": agent.step
+            })
+        else:
+            wandb.log({
+                "Episode Reward": ep_reward,
+                "Moving Average Reward": moving_average_rewards,
+                "Episode Steps": i_step,
+                "Epsilon": agent.config.epsilon,
+                "Episode": i_episode,
+                "Total Training Steps": agent.step
+            })
 
     # Save the model to the disk
     agent.save_model()
@@ -254,9 +333,9 @@ else:
 # Set the agent to eval mode
 agent.set_eval_mode()
 
-if play:
+if cfg.play:
     print("\n--- Playing the game with the trained agent ---")
-    num_test_episodes = 5  # Number of episodes to play
+    num_test_episodes = 1  # Number of episodes to play
     for i_ep in range(num_test_episodes):
         state = env.reset()
         ep_reward = 0

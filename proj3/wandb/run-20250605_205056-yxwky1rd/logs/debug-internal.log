@@ -1,0 +1,15 @@
+{"time":"2025-06-05T20:50:56.21454949+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_205056-yxwky1rd/logs/debug-core.log"}
+{"time":"2025-06-05T20:50:57.846537508+08:00","level":"INFO","msg":"created new stream","id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:57.846795601+08:00","level":"INFO","msg":"stream: started","id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:57.846851309+08:00","level":"INFO","msg":"sender: started","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:57.846848752+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:57.84689487+08:00","level":"INFO","msg":"handler: started","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:58.319159265+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T20:50:58.536632469+08:00","level":"INFO","msg":"stream: closing","id":"yxwky1rd"}
+{"time":"2025-06-05T20:50:58.536750646+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T20:50:58.537241844+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T20:51:00.692354337+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T20:51:01.440941704+08:00","level":"INFO","msg":"handler: closed","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:51:01.4409802+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:51:01.441159012+08:00","level":"INFO","msg":"sender: closed","stream_id":"yxwky1rd"}
+{"time":"2025-06-05T20:51:01.441817147+08:00","level":"INFO","msg":"stream: closed","id":"yxwky1rd"}

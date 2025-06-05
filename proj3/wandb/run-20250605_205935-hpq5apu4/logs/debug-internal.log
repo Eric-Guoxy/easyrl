@@ -1,0 +1,15 @@
+{"time":"2025-06-05T20:59:35.405307486+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/mnt/c/Users/Acer/Desktop/大学生活/拓展学习/人工智能/RL/easyrl/proj3/wandb/run-20250605_205935-hpq5apu4/logs/debug-core.log"}
+{"time":"2025-06-05T20:59:36.081469909+08:00","level":"INFO","msg":"created new stream","id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.081751195+08:00","level":"INFO","msg":"stream: started","id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.081818941+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.081868362+08:00","level":"INFO","msg":"handler: started","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.081860023+08:00","level":"INFO","msg":"sender: started","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.472160049+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T20:59:36.752971334+08:00","level":"INFO","msg":"stream: closing","id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:36.753080316+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T20:59:36.754267597+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T20:59:38.691579043+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T20:59:39.351000058+08:00","level":"INFO","msg":"handler: closed","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:39.351062054+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:39.351089362+08:00","level":"INFO","msg":"sender: closed","stream_id":"hpq5apu4"}
+{"time":"2025-06-05T20:59:39.351995541+08:00","level":"INFO","msg":"stream: closed","id":"hpq5apu4"}
