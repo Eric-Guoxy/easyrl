@@ -243,6 +243,16 @@ class DDPG:
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
+
+    def _soft_target_q_net_update(self):
+        """Soft update target Q-net for more robustness."""
+        for target_param, param in zip(self.target_q_net.parameters(), self.q_net.parameters()):
+            target_param.data.copy_(self.config.tau * param.data + (1.0 - self.config.tau) * target_param.data)
+        
+    def _soft_target_actor_net_update(self):
+        """Soft update target actor-net for more robustness."""
+        for target_param, param in zip(self.target_actor_net.parameters(), self.actor_net.parameters()):
+            target_param.data.copy_(self.config.tau * param.data + (1.0 - self.config.tau) * target_param.data)
     
     def save_model(self, q_path="ddpg_pendulum_q.pth", actor_path="ddpg_pendulum_actor.pth"):
         """Saves all networks' state_dicts."""
@@ -272,8 +282,9 @@ class DDPG:
         self.actor_net.train()
         self.train = True
 
+
 class Config:
-    def __init__(self, n_states, q_lr, actor_lr, memory_capacity, gamma, target_q_update, target_actor_update, max_episodes, max_steps, epsilon_min, epsilon_decay, sample_batch_size, use_noisy, play, train):
+    def __init__(self, n_states, q_lr, actor_lr, memory_capacity, gamma, target_q_update, target_actor_update, max_episodes, max_steps, epsilon_min, epsilon_decay, sample_batch_size, use_noisy, play, train, tau):
         self.n_states = n_states
         self.q_lr = q_lr
         self.actor_lr = actor_lr
@@ -289,4 +300,5 @@ class Config:
         self.use_noisy = use_noisy
         self.play = play
         self.train = train
+        self.tau = tau
 

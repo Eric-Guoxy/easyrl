@@ -73,6 +73,7 @@ ddpg_config = Config(
     memory_capacity=10000,
     sample_batch_size=64,
     gamma=0.99,
+    tau=0.05,
     target_q_update=10,
     target_actor_update=10,
     max_episodes=2000,

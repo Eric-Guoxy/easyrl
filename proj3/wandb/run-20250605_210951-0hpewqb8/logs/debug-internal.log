@@ -5,3 +5,4 @@
 {"time":"2025-06-05T21:09:52.176798478+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"0hpewqb8"}
 {"time":"2025-06-05T21:09:52.176857813+08:00","level":"INFO","msg":"handler: started","stream_id":"0hpewqb8"}
 {"time":"2025-06-05T21:09:52.70235247+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-05T21:24:09.84522088+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ericguoxy-ucas/easyrl/0hpewqb8/file_stream\": EOF"}
