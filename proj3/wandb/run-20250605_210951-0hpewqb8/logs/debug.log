@@ -20,3 +20,4 @@ config: {'n_states': 3, 'q_lr': 9e-05, 'actor_lr': 9e-05, 'memory_capacity': 100
 2025-06-05 21:09:53,086 INFO    MainThread:695207 [wandb_run.py:_redirect():2490] Wrapping output streams.
 2025-06-05 21:09:53,086 INFO    MainThread:695207 [wandb_run.py:_redirect():2513] Redirects installed.
 2025-06-05 21:09:53,103 INFO    MainThread:695207 [wandb_init.py:init():1150] run started, returning control to user process
+2025-06-05 22:15:22,609 INFO    MsgRouterThr:695207 [mailbox.py:close():129] [no run ID] Closing mailbox, abandoning 1 handles.

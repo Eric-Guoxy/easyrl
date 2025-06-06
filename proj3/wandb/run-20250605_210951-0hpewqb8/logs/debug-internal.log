@@ -6,3 +6,12 @@
 {"time":"2025-06-05T21:09:52.176857813+08:00","level":"INFO","msg":"handler: started","stream_id":"0hpewqb8"}
 {"time":"2025-06-05T21:09:52.70235247+08:00","level":"INFO","msg":"Starting system monitor"}
 {"time":"2025-06-05T21:24:09.84522088+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ericguoxy-ucas/easyrl/0hpewqb8/file_stream\": EOF"}
+{"time":"2025-06-05T21:36:20.818717416+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ericguoxy-ucas/easyrl/0hpewqb8/file_stream\": EOF"}
+{"time":"2025-06-05T22:15:22.612952332+08:00","level":"INFO","msg":"stream: closing","id":"0hpewqb8"}
+{"time":"2025-06-05T22:15:22.613138583+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-05T22:15:22.613735561+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-05T22:15:24.059503151+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-05T22:15:24.591092657+08:00","level":"INFO","msg":"handler: closed","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T22:15:24.591218365+08:00","level":"INFO","msg":"sender: closed","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T22:15:24.591176978+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"0hpewqb8"}
+{"time":"2025-06-05T22:15:24.592065238+08:00","level":"INFO","msg":"stream: closed","id":"0hpewqb8"}

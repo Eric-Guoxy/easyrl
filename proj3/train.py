@@ -1,7 +1,7 @@
 import gym
 import wandb
 import numpy as np
-from pendulum_v1 import DDPG, Config
+from pendulum_v1 import DDPG, TD3, DDPGConfig, TD3Config
 
 class DDPGTrainer:
     def __init__(self, config, env):
@@ -38,13 +38,8 @@ class DDPGTrainer:
                 if done:
                     break
 
-            # 更新target networks，复制DDPG中的所有weights and biases
-            if i_episode % self.config.target_q_update == 0: 
-                self.agent.target_q_net.load_state_dict(self.agent.q_net.state_dict())
-            if i_episode % self.config.target_actor_update == 0:
-                self.agent.target_actor_net.load_state_dict(self.agent.actor_net.state_dict())
-            print('Episode:', i_episode, ' Reward: %i' %
-                int(ep_reward), 'n_steps:', i_step, 'done: ', done)
+            print('Episode:', i_episode, ' Reward: ',
+                   ep_reward, 'n_steps:', i_step, 'done: ', done)
             ep_steps.append(i_step)
             rewards.append(ep_reward)
             # 计算滑动窗口的reward
@@ -54,48 +49,129 @@ class DDPGTrainer:
                 moving_average_rewards.append(
                     0.9*moving_average_rewards[-1]+0.1*ep_reward)
         
-        # Log following metrics
-        wandb.log({
-            "Episode Reward": ep_reward,
-            "Moving Average Reward": moving_average_rewards,
-            "Episode Steps": i_step,
-            "Episode": i_episode,
-        })
+            # Log following metrics
+            wandb.log({
+                "Episode Reward": ep_reward,
+                "Moving Average Reward": moving_average_rewards[-1],
+                "Episode Steps": i_step,
+                "Episode": i_episode,
+            })
+
+
+class TD3Trainer:
+    def __init__(self, config, env):
+        self.config = config
+        self.env = env
+        self.agent = TD3(config)
+
+        # Init wandb
+        wandb.init(
+            project="easyrl",
+            config=vars(config),
+            name="td3-pendulum"
+        )
+
+    def train(self):
+        env = self.env
+        rewards = [] # 记录总的rewards
+        moving_average_rewards = [] # 记录总的经滑动平均处理后的rewards
+        ep_steps = []
+        for i_episode in range(1, self.config.max_episodes+1): # cfg.max_episodes为最大训练的episode数
+            # 添加噪声
+            self.agent.target_q_net_1.sample_noise()
+            self.agent.q_net_1.sample_noise()
+            self.agent.target_q_net_2.sample_noise()
+            self.agent.q_net_2.sample_noise()
+
+            state = env.reset() # reset环境状态
+            ep_reward = 0
+            for i_step in range(1, self.config.max_steps+1): # cfg.max_steps为每个episode的补偿
+                action = self.agent.select_action(state) # 根据当前环境state选择action
+                next_state, reward, done, _ = env.step(np.array([action])) # 更新环境参数
+                ep_reward += reward
+                self.agent.memory.append((state, action, reward, next_state, done)) # 将state等这些transition存入memory
+                state = next_state # 跳转到下一个状态
+                self.agent.update() # 每步更新网络
+                if done:
+                    break
+
+            print('Episode:', i_episode, ' Reward: ', 
+                ep_reward, 'n_steps:', i_step, 'done: ', done)
+            ep_steps.append(i_step)
+            rewards.append(ep_reward)
+            # 计算滑动窗口的reward
+            if i_episode == 1:
+                moving_average_rewards.append(ep_reward)
+            else:
+                moving_average_rewards.append(
+                    0.9*moving_average_rewards[-1]+0.1*ep_reward)
+        
+            # Log following metrics
+            wandb.log({
+                "Episode Reward": ep_reward,
+                "Moving Average Reward": moving_average_rewards[-1],
+                "Episode Steps": i_step,
+                "Episode": i_episode,
+            })
 
 env = gym.make('Pendulum-v1') 
 env.seed(1)
 n_states = env.observation_space.shape[0] # 获取状态的维数(4)
 
-ddpg_config = Config(
+ddpg_config = DDPGConfig(
     n_states=n_states,
-    q_lr = 9e-5,
-    actor_lr=9e-5,
+    q_lr = 1e-3,
+    actor_lr=3e-4,
     memory_capacity=10000,
     sample_batch_size=64,
     gamma=0.99,
-    tau=0.05,
-    target_q_update=10,
-    target_actor_update=10,
+    tau=0.005,
     max_episodes=2000,
     max_steps=200,
-    epsilon_min=0.01,
-    epsilon_decay=0.995,
     use_noisy=True,
     play=False,
-    train=True
+    train=True,
+    action_max=2.0,
+    action_min=-2.0,
+    action_noise_std=0.1
 )
 
-ALGORITHM = "DDPG" # ["DDPG", "TD3", "PPO"]
+td3_config = TD3Config(
+    n_states=n_states,
+    q_lr = 1e-3,
+    actor_lr=3e-4,
+    memory_capacity=10000,
+    sample_batch_size=64,
+    gamma=0.99,
+    tau=0.005,
+    max_episodes=2000,
+    max_steps=200,
+    use_noisy=True,
+    play=False,
+    train=True,
+    action_max=2.0,
+    action_min=-2.0,
+    action_noise_std=0.1,
+    policy_noise_std=0.2,
+    policy_delay=2,
+    noise_clip=0.5
+)
+
+ALGORITHM = "TD3" # ["DDPG", "TD3", "PPO", "GRPO"]
 PLAY_ROUNDS = 1
 
 if ALGORITHM == "DDPG":
-    trainer = DDPGTrainer(config=ddpg_config, env=env)
     config = ddpg_config
-    agent = DDPG(ddpg_config)
+    trainer = DDPGTrainer(config=config, env=env)
+    agent = trainer.agent
+elif ALGORITHM == "TD3":
+    config = td3_config
+    trainer = TD3Trainer(config=config, env=env)
+    agent = trainer.agent
 
 if config.train:
     trainer.train()
-    agent = trainer.agent()
+    trainer.agent.save_model()
 else:
     agent.load_model()
 
@@ -111,8 +187,8 @@ if config.play:
         print(f"\nPlaying Episode {i_ep + 1}")
         env.render() # Display the initial state of the environment
         while not done:
-            action = agent.select_action(state)  
-            next_state, reward, done, _ = env.step(action)
+            action_scaler = agent.select_action(state)  
+            next_state, reward, done, _ = env.step(np.array([action_scaler]))
             state = next_state
             ep_reward += reward
             env.render() # Display the environment after each step
