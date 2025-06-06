@@ -117,9 +117,11 @@ class TD3Trainer:
 env = gym.make('Pendulum-v1') 
 env.seed(1)
 n_states = env.observation_space.shape[0] # 获取状态的维数(4)
+n_actions = env.action_space.shape[0]
 
 ddpg_config = DDPGConfig(
     n_states=n_states,
+    n_actions=n_actions,
     q_lr = 1e-3,
     actor_lr=3e-4,
     memory_capacity=10000,
@@ -138,6 +140,7 @@ ddpg_config = DDPGConfig(
 
 td3_config = TD3Config(
     n_states=n_states,
+    n_actions=n_actions,
     q_lr = 1e-3,
     actor_lr=3e-4,
     memory_capacity=10000,

@@ -143,7 +143,7 @@ class DDPG:
 
         self.target_q_net = QNet(
             num_layers=3,
-            input_dim=config.n_states+1, # config.n_states for state, one for action
+            input_dim=config.n_states+config.n_actions, # config.n_states for state, config.n_actions for action
             hidden_dim=20,
             output_dim=1, # Output the Q(s, a)
             use_noisy=True
@@ -152,7 +152,7 @@ class DDPG:
 
         self.q_net = QNet(
             num_layers=3,
-            input_dim=config.n_states+1,
+            input_dim=config.n_states+config.n_actions,
             hidden_dim=20,
             output_dim=1,
             use_noisy=True
@@ -163,7 +163,7 @@ class DDPG:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=20,
-            output_dim=1,
+            output_dim=config.n_actions,
         )
         self.target_actor_net.eval()
 
@@ -171,7 +171,7 @@ class DDPG:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=20,
-            output_dim=1,
+            output_dim=config.n_actions,
         )
         self.target_actor_net.load_state_dict(self.actor_net.state_dict())
 
@@ -312,7 +312,7 @@ class TD3:
         # the overestimation of Q
         self.target_q_net_1 = QNet(
             num_layers=3,
-            input_dim=config.n_states+1,
+            input_dim=config.n_states+config.n_actions,
             hidden_dim=20,
             output_dim=1,
             use_noisy=True
@@ -321,7 +321,7 @@ class TD3:
 
         self.q_net_1 = QNet(
             num_layers=3,
-            input_dim=config.n_states+1,
+            input_dim=config.n_states+config.n_actions,
             hidden_dim=20,
             output_dim=1,
             use_noisy=True
@@ -330,7 +330,7 @@ class TD3:
 
         self.target_q_net_2 = QNet(
             num_layers=3,
-            input_dim=config.n_states+1,
+            input_dim=config.n_states+config.n_actions,
             hidden_dim=20,
             output_dim=1,
             use_noisy=True
@@ -339,7 +339,7 @@ class TD3:
 
         self.q_net_2 = QNet(
             num_layers=3,
-            input_dim=config.n_states+1,
+            input_dim=config.n_states+config.n_actions,
             hidden_dim=20,
             output_dim=1,
             use_noisy=True
@@ -350,7 +350,7 @@ class TD3:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=20,
-            output_dim=1
+            output_dim=config.n_actions
         )
         self.target_actor_net.eval()
 
@@ -358,7 +358,7 @@ class TD3:
             num_layers=3,
             input_dim=config.n_states,
             hidden_dim=20,
-            output_dim=1
+            output_dim=config.n_actions
         )
         self.target_actor_net.load_state_dict(self.actor_net.state_dict())
 
@@ -518,11 +518,46 @@ class TD3:
         self.train = True
 
 
+class PPO:
+    """The Proximal Policy Optimization algorithm."""
+
+    def __init__(self, config):
+        self.config = config
+
+        # The actor net (used for 'demonstration') -> \pi_{\theta^\prime}
+        self.actor_net = PiNet(
+            num_layers=3,
+            input_dim=self.config.n_states,
+            hidden_dim=20,
+            output_dim=config.n_actions
+        )
+
+        # The actual policy net to be updated -> \pi_{\theta}
+        self.policy_net = PiNet(
+            num_layers=3,
+            input_dim=self.config.n_states,
+            hidden_dim=20,
+            output_dim=config.n_actions
+        )
+
+        # The critic net (used for calculation of the advantage)
+        self.critic_net = PiNet(
+            num_layers=3,
+            input_dim=config.n_states+config.n_actions,
+            hidden_dim=20,
+            output_dim=1
+        )
+
+        # Memory buffer
+        self.memory = deque(maxlen=config.memory_capacity)
+
+
 class Config:
-    def __init__(self, n_states, q_lr, actor_lr, memory_capacity, gamma, max_episodes, max_steps, sample_batch_size, use_noisy, play, train, action_min, action_max):
+    def __init__(self, n_states, n_actions, q_lr, actor_lr, memory_capacity, gamma, max_episodes, max_steps, sample_batch_size, use_noisy, play, train, action_min, action_max):
         self.n_states = n_states
         self.q_lr = q_lr
         self.actor_lr = actor_lr
+        self.n_actions = n_actions
         self.memory_capacity = memory_capacity
         self.gamma = gamma
         self.max_episodes = max_episodes
