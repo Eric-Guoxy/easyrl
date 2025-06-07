@@ -45,7 +45,6 @@ I will list my experiences in implementing RL algorithms in this repository. The
     - DDPG (Deep Deterministic Policy Gradient)
     - TD3 (Twin Delayed Deep Deterministic Policy Gradient)
     - PPO (Proximal Policy Optimization)
-    - GRPO (Grouped Proximal Policy Optimization)
 - State Space: Continuous
 - Action Space: Continuous
 - Reward Structure: Dense
@@ -82,5 +81,24 @@ I will explain the implementation details of each algorithm in the following sec
 4. When computing the loss for the actor, I sticked to the first Q-net as the standard TD3 implementation. Taking the minimum of the two Q-nets only adds variance to the loss function. The two sets of Q-nets are introduced only to reduce the overestimation bias in Q-value estimation.
 5. The hyperparameters-tunning is crucial for TD3 and remains to be explored. I will try to find out the best hyperparameters in the future.
 
-### PPO ([Original paper](https://arxiv.org/pdf/1707.06347))
+### PPO ([Original paper](https://arxiv.org/pdf/1707.06347), [GRPO paper](https://arxiv.org/pdf/2402.03300))
+![PPO and GRPO Architecture](./ppo_and_grpo.png)
 ![PPO Algorithm](./ppo_algorithm.png)
+- PPO is a policy gradient algorithm that uses a clipped objective function to stabilize training.
+- It uses a surrogate objective function that is clipped to prevent large updates to the policy.
+- The algorithm alternates between sampling data from the environment and optimizing the policy using the collected data.
+- The advantage function is used to estimate the value of the current policy compared to a baseline policy.
+- The loss function for the policy is the negative of the clipped objective function, while the value function is trained using mean squared error.
+
+#### Experiences:
+1. I used a policy network, an actor network (for old policy $\pi_{\theta^\prime}$), and a critic network (for value function $V_{\phi}$) to implement PPO.
+2. I choosed an easier version of PPO, using only one actor to collect data and discard the KL divergence term in the loss function.
+3. I used a clipped objective function to stabilize training and prevent large updates to the policy.
+4. It's valuable to truly understand the notion of `mini-batch` and `micro-batch` in PPO. The whole pipeline is as follows:
+    - Collect data from the environment using the actor network and store them in a buffer. 
+    - Using GAE (Generalized Advantage Estimation) to compute the advantage function and value function for the collected data. This is actualy a backward pass. You can start from the last bootstrapped value and compute the advantage function and value function for each step in the collected data.
+    - Then you should shuffle the collected data and split them into mini-batches.
+    - For each mini-batch, compute the loss for the policy and value function using the clipped objective function and mean squared error, respectively.
+    - Update the policy and value networks using the computed loss.
+    - The above shuffle -> mini-batches -> loss & train process needs to be repeated for multiple epochs (usually 10-20 epochs).
+5. The hyperparameters-tunning is crucial for PPO and remains to be explored. I will try to find out the best hyperparameters in the future.
